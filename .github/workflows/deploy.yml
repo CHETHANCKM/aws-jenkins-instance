@@ -18,29 +18,37 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: Configure AWS via OIDC
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::437563065463:role/github-automation-policy
-        aws-region: ap-south-1
-
-    - name: Deploy S3
+    - name: Deploy Network + EFS Sequentially
       run: |
-        aws cloudformation deploy \
-        --stack-name jenkins-s3 \
-        --template-file cf-templates/s3.yaml \
-        --parameter-overrides file://variables/base-params.json
 
-    - name: Deploy Network
-      run: |
-        aws cloudformation deploy \
-        --stack-name jenkins-network \
-        --template-file cf-templates/network.yaml \
-        --parameter-overrides file://variables/base-params.json
+        echo "Deploying Network..."
 
-    - name: Deploy EFS
-      run: |
         aws cloudformation deploy \
-        --stack-name jenkins-efs \
-        --template-file cf-templates/efs.yaml \
-        --parameter-overrides file://variables/base-params.json
+          --stack-name jenkins-network \
+          --template-file cf-templates/network.yaml \
+          --parameter-overrides file://variables/base-params.json
+
+        echo "Waiting for Network..."
+
+        aws cloudformation wait stack-create-complete \
+          --stack-name jenkins-network || \
+        aws cloudformation wait stack-update-complete \
+          --stack-name jenkins-network
+
+        echo "Network Ready"
+
+        echo "Deploying EFS..."
+
+        aws cloudformation deploy \
+          --stack-name jenkins-efs \
+          --template-file cf-templates/efs.yaml \
+          --parameter-overrides file://variables/base-params.json
+
+        echo "Waiting for EFS..."
+
+        aws cloudformation wait stack-create-complete \
+          --stack-name jenkins-efs || \
+        aws cloudformation wait stack-update-complete \
+          --stack-name jenkins-efs
+
+        echo "EFS Ready"

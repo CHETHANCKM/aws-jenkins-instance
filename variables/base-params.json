@@ -14,9 +14,5 @@
   {
     "ParameterKey": "PublicSubnet2CIDR",
     "ParameterValue": "192.168.10.64/26"
-  },
-  {
-    "ParameterKey": "FargateClusterName",
-    "ParameterValue": "jenkins-fargate"
   }
 ]

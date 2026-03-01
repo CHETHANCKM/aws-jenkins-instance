@@ -15,7 +15,6 @@ Parameters:
     Type: String
 
 Resources:
-
 # -------------------------
 # VPC
 # -------------------------
