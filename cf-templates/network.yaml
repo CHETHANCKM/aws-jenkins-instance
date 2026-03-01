@@ -1,0 +1,17 @@
+Parameters:
+  ProjectName:
+    Type: String
+  VpcCIDR:
+    Type: String
+  PublicSubnet1CIDR:
+    Type: String
+  PublicSubnet2CIDR:
+    Type: String
+
+Vpc:
+  Type: AWS::EC2::VPC
+  Properties:
+    CidrBlock: !Ref VpcCIDR
+    Tags:
+      - Key: Name
+        Value: !Sub "${ProjectName}-vpc"

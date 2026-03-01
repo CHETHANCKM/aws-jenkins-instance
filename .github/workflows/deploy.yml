@@ -30,3 +30,10 @@ jobs:
         --stack-name jenkins-s3 \
         --template-file cf-templates/s3.yaml \
         --parameter-overrides file://variables/base-params.json
+
+    - name: Deploy Network
+      run: |
+        aws cloudformation deploy \
+        --stack-name jenkins-network \
+        --template-file cf-templates/network.yaml \
+        --parameter-overrides file://variables/base-params.json
