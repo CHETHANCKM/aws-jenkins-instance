@@ -1,11 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: EFS for Jenkins Home on ECS Fargate
+Description: Jenkins EFS Storage
 
 Parameters:
   ProjectName:
     Type: String
 
 Resources:
+
   JenkinsEFS:
     Type: AWS::EFS::FileSystem
     Properties:
@@ -16,8 +17,59 @@ Resources:
         - Key: Name
           Value: !Sub "${ProjectName}-jenkins-efs"
 
+  EFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow NFS from ECS
+      VpcId:
+        Fn::ImportValue: !Sub "${ProjectName}-VpcId"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub "${ProjectName}-ECSSecurityGroup"
+
+  EFSMountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref JenkinsEFS
+      SubnetId:
+        Fn::ImportValue: !Sub "${ProjectName}-PublicSubnet1"
+      SecurityGroups:
+        - !Ref EFSSecurityGroup
+
+  EFSMountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref JenkinsEFS
+      SubnetId:
+        Fn::ImportValue: !Sub "${ProjectName}-PublicSubnet2"
+      SecurityGroups:
+        - !Ref EFSSecurityGroup
+
+  JenkinsAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties:
+      FileSystemId: !Ref JenkinsEFS
+      PosixUser:
+        Uid: "1000"
+        Gid: "1000"
+      RootDirectory:
+        Path: "/jenkins-home"
+        CreationInfo:
+          OwnerUid: "1000"
+          OwnerGid: "1000"
+          Permissions: "755"
+
 Outputs:
-  EFSFileSystemId:
+
+  EFSId:
     Value: !Ref JenkinsEFS
     Export:
       Name: !Sub "${ProjectName}-EFSId"
+
+  EFSAccessPoint:
+    Value: !Ref JenkinsAccessPoint
+    Export:
+      Name: !Sub "${ProjectName}-EFSAccessPoint"
