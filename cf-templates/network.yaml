@@ -8,10 +8,11 @@ Parameters:
   PublicSubnet2CIDR:
     Type: String
 
-Vpc:
-  Type: AWS::EC2::VPC
-  Properties:
-    CidrBlock: !Ref VpcCIDR
-    Tags:
-      - Key: Name
-        Value: !Sub "${ProjectName}-vpc"
+Resources:  
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-vpc"
