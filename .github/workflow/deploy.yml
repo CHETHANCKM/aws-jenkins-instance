@@ -3,7 +3,7 @@ name: Deploy Jenkins Infra
 on:
   push:
     branches:
-      - main
+      - dev
 
 permissions:
   id-token: write
