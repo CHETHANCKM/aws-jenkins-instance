@@ -14,7 +14,6 @@ Resources:
         Status: Enabled
 
 Outputs:
-
   BucketName:
     Value: !Ref CFNTemplatesBucket
     Export:

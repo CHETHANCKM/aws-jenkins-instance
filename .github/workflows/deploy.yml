@@ -37,3 +37,10 @@ jobs:
         --stack-name jenkins-network \
         --template-file cf-templates/network.yaml \
         --parameter-overrides file://variables/base-params.json
+
+    - name: Deploy EFS
+      run: |
+        aws cloudformation deploy \
+        --stack-name jenkins-efs \
+        --template-file cf-templates/efs.yaml \
+        --parameter-overrides file://variables/base-params.json
