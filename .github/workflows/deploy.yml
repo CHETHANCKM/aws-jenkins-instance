@@ -28,5 +28,5 @@ jobs:
       run: |
         aws cloudformation deploy \
         --stack-name jenkins-s3 \
-        --template-file templates/s3.yaml \
+        --template-file cf-templates/s3.yaml \
         --parameter-overrides file://variables/base-params.json
