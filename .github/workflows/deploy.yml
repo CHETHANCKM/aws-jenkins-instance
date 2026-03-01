@@ -18,6 +18,12 @@ jobs:
 
     - uses: actions/checkout@v4
 
+    - name: Configure AWS via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::437563065463:role/github-automation-policy
+        aws-region: ap-south-1
+
     - name: Deploy Network + EFS Sequentially
       run: |
 
