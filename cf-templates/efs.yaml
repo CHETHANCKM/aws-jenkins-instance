@@ -6,11 +6,6 @@ Parameters:
     Type: String
 
 Resources:
-
-# -------------------------------
-# EFS FILE SYSTEM
-# -------------------------------
-
   JenkinsEFS:
     Type: AWS::EFS::FileSystem
     Properties:
@@ -21,76 +16,8 @@ Resources:
         - Key: Name
           Value: !Sub "${ProjectName}-jenkins-efs"
 
-# -------------------------------
-# SECURITY GROUP FOR EFS
-# -------------------------------
-
-  EFSSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow NFS from ECS Tasks
-      VpcId:
-        Fn::ImportValue: !Sub "${ProjectName}-VpcId"
-
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 2049
-          ToPort: 2049
-          SourceSecurityGroupId:
-            Fn::ImportValue: !Sub "${ProjectName}-ECSSecurityGroup"
-
-      Tags:
-        - Key: Name
-          Value: !Sub "${ProjectName}-efs-sg"
-
-# -------------------------------
-# MOUNT TARGETS
-# -------------------------------
-
-  EFSMountTarget1:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref JenkinsEFS
-      SubnetId:
-        Fn::ImportValue: !Sub "${ProjectName}-PublicSubnet1"
-      SecurityGroups:
-        - !Ref EFSSecurityGroup
-
-  EFSMountTarget2:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref JenkinsEFS
-      SubnetId:
-        Fn::ImportValue: !Sub "${ProjectName}-PublicSubnet2"
-      SecurityGroups:
-        - !Ref EFSSecurityGroup
-
-# -------------------------------
-# ACCESS POINT FOR FARGATE
-# -------------------------------
-
-  JenkinsAccessPoint:
-    Type: AWS::EFS::AccessPoint
-    Properties:
-      FileSystemId: !Ref JenkinsEFS
-      PosixUser:
-        Uid: "1000"
-        Gid: "1000"
-      RootDirectory:
-        Path: "/jenkins-home"
-        CreationInfo:
-          OwnerUid: "1000"
-          OwnerGid: "1000"
-          Permissions: "755"
-
 Outputs:
-
   EFSFileSystemId:
     Value: !Ref JenkinsEFS
     Export:
       Name: !Sub "${ProjectName}-EFSId"
-
-  EFSAccessPoint:
-    Value: !Ref JenkinsAccessPoint
-    Export:
-      Name: !Sub "${ProjectName}-EFSAccessPoint"
